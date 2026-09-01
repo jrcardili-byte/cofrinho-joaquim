@@ -1,0 +1,26 @@
+{
+  "name": "Cofrinho do Joaquim",
+  "short_name": "Cofrinho",
+  "description": "O caderno digital do cofrinho de verdade.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFF7EA",
+  "theme_color": "#101A3D",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "./icone.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icone-mascara.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
