@@ -38,22 +38,25 @@ npm run dev
 
 Abre em `http://localhost:5173`.
 
-## Colocando no celular do Joaquim
+## No ar
 
-O service worker (que faz o app abrir offline) só funciona em `localhost` ou em **HTTPS**. Duas
-opções:
+**https://jrcardili-byte.github.io/cofrinho-joaquim/**
 
-1. **Testar rápido na mesma rede** — `npm run dev` já sobe com `--host`; acesse
-   `http://<ip-do-computador>:5173` pelo celular. O app funciona, mas sem instalação offline.
-2. **Uso de verdade** — publique a pasta `dist` (gerada por `npm run build`) em qualquer hospedagem
-   estática grátis com HTTPS: Netlify, Vercel, Cloudflare Pages ou GitHub Pages. Aí é só abrir o
-   endereço no celular e usar “Adicionar à tela inicial”.
+Publicado no GitHub Pages. Todo `git push` na branch `main` dispara o workflow
+`.github/workflows/deploy.yml`, que compila e publica sozinho — não precisa fazer mais nada.
+
+No celular, abra o endereço e use “Adicionar à tela inicial” (menu do Chrome). A partir daí o app
+abre offline, como qualquer aplicativo instalado.
+
+Para testar na mesma rede antes de publicar, `npm run dev` já sobe com `--host`: acesse
+`http://<ip-do-computador>:5173` pelo celular. Funciona, mas sem instalação offline — o service
+worker exige HTTPS ou `localhost`.
 
 ## Gravando a etiqueta NFC
 
 1. Compre uma etiqueta **NTAG213** (as adesivas, de uns R$ 2 cada).
 2. Instale um app de escrita NFC no seu celular Android (o *NFC Tools* é o mais comum).
-3. Grave um registro do tipo **URL** apontando para o endereço onde o app está publicado.
+3. Grave um registro do tipo **URL** com `https://jrcardili-byte.github.io/cofrinho-joaquim/`
 4. Cole a etiqueta embaixo ou atrás do cofrinho.
 
 No Android o app abre direto ao aproximar. No iPhone aparece uma notificação do sistema e um toque
