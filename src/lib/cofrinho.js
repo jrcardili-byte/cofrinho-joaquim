@@ -38,6 +38,8 @@ export const DESTINOS = [
   { id: 'outro-s', nome: 'Outro', icone: '✨' }
 ]
 
+export const ICONES_TAREFA = ['🧹', '🍽️', '🐕', '🛏️', '📚', '🌱', '🗑️', '🧺', '🚗', '🧽']
+
 export function categoria(id) {
   return (
     ORIGENS.find((c) => c.id === id) ||
@@ -46,19 +48,24 @@ export function categoria(id) {
 }
 
 const INICIAL = {
-  versao: 1,
+  versao: 2,
   nome: 'Joaquim',
   lancamentos: [], // { id, tipo: entrada|saida|ajuste, valor, categoria, nota, data }
   metas: [], // { id, nome, emoji, alvo, criadaEm, concluidaEm }
   conferencias: [], // { id, data, contagem, total, anotado }
-  esperando: [] // { id, valor, categoria, data }
+  esperando: [], // { id, valor, categoria, data }
+  tarefas: [], // { id, nome, icone, valor, tipo: avulsa|semanal, ativa }
+  marcacoes: [], // { id, tarefaId, nome, icone, valor, origem, data, status, decididaEm }
+  mesada: { ativa: false, valor: 0, dia: 1, ultimoMes: null },
+  pin: null
 }
 
 function carregar() {
   try {
     const cru = localStorage.getItem(CHAVE)
     if (!cru) return INICIAL
-    return { ...INICIAL, ...JSON.parse(cru) }
+    const salvo = JSON.parse(cru)
+    return { ...INICIAL, ...salvo, mesada: { ...INICIAL.mesada, ...(salvo.mesada || {}) } }
   } catch {
     return INICIAL
   }
@@ -77,6 +84,35 @@ export function useCofrinho() {
     }
   }, [dados])
 
+  // Quando chega o dia da mesada, ela entra sozinha na fila do "pra receber".
+  useEffect(() => {
+    setDados((d) => {
+      const m = d.mesada
+      if (!m.ativa || !m.valor) return d
+      const hoje = new Date()
+      const mesCorrente = mesDe(hoje.toISOString())
+      if (m.ultimoMes === mesCorrente || hoje.getDate() < m.dia) return d
+      return {
+        ...d,
+        mesada: { ...m, ultimoMes: mesCorrente },
+        marcacoes: [
+          {
+            id: novoId(),
+            tarefaId: null,
+            nome: 'Mesada do mês',
+            icone: '🪙',
+            valor: m.valor,
+            origem: 'mesada',
+            data: hoje.toISOString(),
+            status: 'aprovada',
+            decididaEm: hoje.toISOString()
+          },
+          ...d.marcacoes
+        ]
+      }
+    })
+  }, [])
+
   const registrar = useCallback((tipo, valor, cat, nota = '') => {
     if (!valor || valor <= 0) return
     setDados((d) => ({
@@ -88,18 +124,11 @@ export function useCofrinho() {
     }))
   }, [])
 
-  // Contagem do cofre de verdade. Se nao bater com o anotado, grava o ajuste.
   const conferir = useCallback((contagem, anotado) => {
     const total = Object.entries(contagem).reduce((s, [v, q]) => s + Number(v) * q, 0)
     const diferenca = total - anotado
     setDados((d) => {
-      const conf = {
-        id: novoId(),
-        data: new Date().toISOString(),
-        contagem,
-        total,
-        anotado
-      }
+      const conf = { id: novoId(), data: new Date().toISOString(), contagem, total, anotado }
       const lancs = [...d.lancamentos]
       if (diferenca !== 0) {
         lancs.unshift({
@@ -153,8 +182,85 @@ export function useCofrinho() {
     setDados((d) => ({ ...d, esperando: d.esperando.filter((e) => e.id !== id) }))
   }, [])
 
-  const trocarNome = useCallback((nome) => setDados((d) => ({ ...d, nome })), [])
+  // ----- tarefas -----
 
+  const criarTarefa = useCallback((nome, icone, valor, tipo) => {
+    setDados((d) => ({
+      ...d,
+      tarefas: [...d.tarefas, { id: novoId(), nome, icone, valor, tipo, ativa: true }]
+    }))
+  }, [])
+
+  const removerTarefa = useCallback((id) => {
+    setDados((d) => ({ ...d, tarefas: d.tarefas.filter((t) => t.id !== id) }))
+  }, [])
+
+  // O Joaquim diz que fez. Fica esperando a aprovacao de um responsavel.
+  const marcarFeita = useCallback((tarefa) => {
+    setDados((d) => ({
+      ...d,
+      marcacoes: [
+        {
+          id: novoId(),
+          tarefaId: tarefa.id,
+          nome: tarefa.nome,
+          icone: tarefa.icone,
+          valor: tarefa.valor,
+          origem: 'tarefa',
+          data: new Date().toISOString(),
+          status: 'pendente',
+          decididaEm: null
+        },
+        ...d.marcacoes
+      ]
+    }))
+  }, [])
+
+  const decidirMarcacao = useCallback((id, aprovada) => {
+    setDados((d) => ({
+      ...d,
+      marcacoes: d.marcacoes.map((m) =>
+        m.id === id
+          ? { ...m, status: aprovada ? 'aprovada' : 'recusada', decididaEm: new Date().toISOString() }
+          : m
+      )
+    }))
+  }, [])
+
+  // O dinheiro so vira saldo quando a moeda entra no cofre de verdade.
+  const receber = useCallback((id) => {
+    setDados((d) => {
+      const m = d.marcacoes.find((x) => x.id === id)
+      if (!m || m.status !== 'aprovada') return d
+      return {
+        ...d,
+        marcacoes: d.marcacoes.map((x) =>
+          x.id === id ? { ...x, status: 'recebida', recebidaEm: new Date().toISOString() } : x
+        ),
+        lancamentos: [
+          {
+            id: novoId(),
+            tipo: 'entrada',
+            valor: m.valor,
+            categoria: m.origem,
+            nota: m.nome,
+            data: new Date().toISOString()
+          },
+          ...d.lancamentos
+        ]
+      }
+    })
+  }, [])
+
+  // ----- responsavel -----
+
+  const definirPin = useCallback((pin) => setDados((d) => ({ ...d, pin })), [])
+
+  const configurarMesada = useCallback((mesada) => {
+    setDados((d) => ({ ...d, mesada: { ...d.mesada, ...mesada } }))
+  }, [])
+
+  const trocarNome = useCallback((nome) => setDados((d) => ({ ...d, nome })), [])
   const apagarTudo = useCallback(() => setDados(INICIAL), [])
 
   const resumo = useMemo(() => calcular(dados), [dados])
@@ -169,13 +275,20 @@ export function useCofrinho() {
     concluirMeta,
     esperar,
     encerrarEspera,
+    criarTarefa,
+    removerTarefa,
+    marcarFeita,
+    decidirMarcacao,
+    receber,
+    definirPin,
+    configurarMesada,
     trocarNome,
     apagarTudo
   }
 }
 
 function calcular(dados) {
-  const { lancamentos } = dados
+  const { lancamentos, marcacoes } = dados
 
   const saldo = lancamentos.reduce((s, l) => {
     if (l.tipo === 'entrada') return s + l.valor
@@ -188,7 +301,6 @@ function calcular(dados) {
   const entrouNoMes = doMes.filter((l) => l.tipo === 'entrada').reduce((s, l) => s + l.valor, 0)
   const saiuNoMes = doMes.filter((l) => l.tipo === 'saida').reduce((s, l) => s + l.valor, 0)
 
-  // De onde veio o dinheiro (todas as entradas, por categoria).
   const porOrigem = {}
   for (const l of lancamentos) {
     if (l.tipo !== 'entrada') continue
@@ -203,19 +315,30 @@ function calcular(dados) {
     }))
     .sort((a, b) => b.valor - a.valor)
 
+  const esperandoAprovacao = marcacoes.filter((m) => m.status === 'pendente')
+  const aReceber = marcacoes.filter((m) => m.status === 'aprovada')
+  const totalAReceber = aReceber.reduce((s, m) => s + m.valor, 0)
+
+  // Quanto ele ja ganhou trabalhando neste mes.
+  const ganhoTarefasMes = lancamentos
+    .filter((l) => l.tipo === 'entrada' && l.categoria === 'tarefa' && mesDe(l.data) === mesAtual)
+    .reduce((s, l) => s + l.valor, 0)
+
   return {
     saldo,
     entrouNoMes,
     saiuNoMes,
     origens,
     totalEntradas,
+    esperandoAprovacao,
+    aReceber,
+    totalAReceber,
+    ganhoTarefasMes,
     sequencia: contarSequencia(lancamentos),
     ultimaConferencia: dados.conferencias[0] || null
   }
 }
 
-// Semanas seguidas em que entrou algum dinheiro no cofre.
-// A semana atual so quebra a sequencia depois que ela termina.
 function contarSequencia(lancamentos) {
   const semanas = new Set(
     lancamentos.filter((l) => l.tipo === 'entrada').map((l) => chaveSemana(new Date(l.data)))
@@ -224,7 +347,7 @@ function contarSequencia(lancamentos) {
 
   let n = 0
   const cursor = new Date()
-  if (!semanas.has(chaveSemana(cursor))) cursor.setDate(cursor.getDate() - 7) // semana em aberto
+  if (!semanas.has(chaveSemana(cursor))) cursor.setDate(cursor.getDate() - 7)
   while (semanas.has(chaveSemana(cursor))) {
     n += 1
     cursor.setDate(cursor.getDate() - 7)
@@ -234,6 +357,6 @@ function contarSequencia(lancamentos) {
 
 function chaveSemana(d) {
   const x = new Date(d.getFullYear(), d.getMonth(), d.getDate())
-  x.setDate(x.getDate() - x.getDay()) // volta pro domingo
+  x.setDate(x.getDate() - x.getDay())
   return x.toISOString().slice(0, 10)
 }

@@ -7,6 +7,8 @@ import Objetivos from './telas/Objetivos.jsx'
 import Extrato from './telas/Extrato.jsx'
 import Dicas from './telas/Dicas.jsx'
 import Festa from './telas/Festa.jsx'
+import Tarefas from './telas/Tarefas.jsx'
+import Pais from './telas/Pais.jsx'
 
 export default function App() {
   const cofre = useCofrinho()
@@ -41,6 +43,12 @@ export default function App() {
       break
     case 'dicas':
       conteudo = <Dicas cofre={cofre} ir={ir} />
+      break
+    case 'tarefas':
+      conteudo = <Tarefas cofre={cofre} ir={ir} comemorar={comemorar} />
+      break
+    case 'pais':
+      conteudo = <Pais cofre={cofre} ir={ir} />
       break
     case 'festa':
       conteudo = <Festa info={festa} cofre={cofre} ir={ir} />

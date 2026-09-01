@@ -63,7 +63,20 @@ export default function Inicio({ cofre, ir }) {
         </button>
       </div>
 
-      <button className="btn btn-wide" onClick={() => ir('contar')}>
+      {cofre.totalAReceber > 0 ? (
+        <div className="dica verde" onClick={() => ir('tarefas')} role="presentation">
+          <strong>🤝 Você tem {comCifrao(cofre.totalAReceber)} pra receber</strong>
+          <p>Peça pro papai e coloque no cofrinho. Toque aqui pra ver.</p>
+        </div>
+      ) : null}
+
+      <button className="btn btn-wide" onClick={() => ir('tarefas')}>
+        🧹 Tarefas que valem dinheiro
+        {cofre.esperandoAprovacao.length > 0 ? (
+          <span className="selo">{cofre.esperandoAprovacao.length}</span>
+        ) : null}
+      </button>
+      <button className="btn btn-ghost" onClick={() => ir('contar')}>
         🪙 Conferir o cofrinho
       </button>
       <button className="btn btn-ghost" onClick={() => ir('objetivos')}>
@@ -71,6 +84,9 @@ export default function Inicio({ cofre, ir }) {
       </button>
       <button className="btn btn-ghost" onClick={() => ir('dicas')}>
         💡 Dicas e conquistas
+      </button>
+      <button className="btn btn-ghost" onClick={() => ir('pais')}>
+        👨‍👩‍👦 Modo dos responsáveis
       </button>
 
       {meta ? <Meta meta={meta} saldo={saldo} /> : null}

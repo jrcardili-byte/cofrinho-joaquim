@@ -660,3 +660,115 @@ label.rotulo {
   font-family: Nunito;
   font-size: 12px;
 }
+
+/* ---------- tarefas ---------- */
+.tarefa {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  padding: 11px 13px;
+  margin-top: 8px;
+}
+.tarefa.pendente {
+  border-color: var(--gold);
+  background: var(--gold-soft);
+}
+.tarefa.aprovada {
+  border-color: var(--mint);
+  background: var(--mint-soft);
+}
+.preco {
+  font-family: Fredoka, sans-serif;
+  color: var(--ink-2);
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+.btn-mini {
+  font-family: Fredoka, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  border: 0;
+  border-radius: 12px;
+  padding: 9px 12px;
+  background: var(--mint);
+  color: #06301f;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-mini.apagar {
+  background: transparent;
+  border: 2px solid var(--line);
+  color: var(--ink-3);
+  font-size: 12px;
+  padding: 6px 9px;
+}
+.selo {
+  background: var(--night);
+  color: #fff;
+  border-radius: 99px;
+  min-width: 22px;
+  height: 22px;
+  display: inline-grid;
+  place-items: center;
+  font-size: 12px;
+  padding: 0 6px;
+}
+
+/* ---------- modo dos responsaveis ---------- */
+.abas {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+  background: var(--line);
+  padding: 4px;
+  border-radius: 14px;
+}
+.aba {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  border-radius: 11px;
+  padding: 9px 4px;
+  font-family: Fredoka, sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.aba[aria-current='true'] {
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 2px 6px rgba(16, 26, 61, 0.12);
+}
+.pin-bolinhas {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  margin: 6px 0 4px;
+}
+.pin-bolinhas span {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--ink-3);
+}
+.pin-bolinhas span.cheia {
+  background: var(--mint);
+  border-color: var(--mint);
+}
+.pin-bolinhas.errou span {
+  border-color: var(--coral);
+  background: var(--coral-soft);
+  animation: tremida 0.4s ease;
+}
+@keyframes tremida {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pin-bolinhas.errou span { animation: none; }
+}

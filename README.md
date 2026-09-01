@@ -7,7 +7,7 @@ abrir.
 A regra que guia todas as telas: **primeiro acontece no mundo real, depois se anota.** Por isso os
 botões se chamam “Coloquei” e “Tirei”, no passado, e não “Depositar” e “Sacar”.
 
-## Etapa 1 — o que já funciona
+## O que já funciona
 
 - **Primeira contagem**: no primeiro uso o app leva direto para contar o cofre por tipo de moeda e
   cédula. É assim que ele descobre o ponto de partida.
@@ -23,6 +23,20 @@ botões se chamam “Coloquei” e “Tirei”, no passado, e não “Depositar�
   parte para o banco.
 - **Extrato** agrupado por mês, com resumo em uma frase antes da lista.
 - Funciona **offline** e é instalável na tela inicial (PWA).
+
+### Tarefas e modo dos responsáveis (Etapa 2)
+
+- **Catálogo de tarefas** criado pelo responsável: nome, ícone, valor e frequência.
+- **Ciclo de aprovação**: o Joaquim marca “fiz!”, o responsável aprova, e aí a tarefa entra na
+  lista **“pra receber”**. O saldo **não sobe na aprovação** — sobe quando ele recebe a moeda na mão
+  e toca em “recebi”. É a mesma regra do resto do app: primeiro o mundo real, depois a anotação.
+- **Mesada automática**: no dia escolhido do mês, ela entra sozinha no “pra receber”. O app lembra,
+  você entrega o dinheiro.
+- **Modo dos responsáveis** protegido por PIN de 4 números, com as abas Aprovar, Tarefas e Ajustes,
+  além do resumo de onde vem o dinheiro dele.
+
+> O PIN é uma tranca de confiança, não segurança de verdade: ele fica salvo no próprio aparelho e
+> serve para impedir o clique impulsivo de uma criança, não um adulto determinado.
 
 Tudo fica salvo no `localStorage` do próprio aparelho. Nada vai para servidor nenhum.
 
@@ -69,7 +83,8 @@ index.html            página e fontes
 public/               manifest, ícones e service worker
 src/lib/dinheiro.js   formatação de valores e datas
 src/lib/cofrinho.js   estado do cofrinho, cálculos e persistência
-src/telas/            Inicio, Movimento, Contar, Objetivos, Extrato, Dicas, Festa
+src/telas/            Inicio, Movimento, Contar, Objetivos, Extrato, Dicas, Festa,
+                      Tarefas (visao do Joaquim) e Pais (PIN, aprovacoes, ajustes)
 src/estilos.css       o visual inteiro
 ```
 
@@ -78,6 +93,7 @@ que garante que R$ 0,10 + R$ 0,20 dê exatamente R$ 0,30.
 
 ## Próximas etapas
 
-- **Etapa 2** — catálogo de tarefas com valores, perfil dos pais com PIN, aprovação do que foi feito
-  e sincronização entre os dois celulares.
-- **Etapa 3** — gráficos de origem do dinheiro ao longo dos meses e a ponte para o banco.
+- **Sincronizar dois celulares** — hoje os dados vivem no aparelho onde o app é usado. Para o
+  Joaquim aprovar no celular dele e você no seu, é preciso um servidor (Firebase, Supabase ou
+  parecido). Ainda não está feito.
+- **Etapa 3** — gráficos da origem do dinheiro ao longo dos meses e a ponte para o banco.
