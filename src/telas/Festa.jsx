@@ -17,8 +17,12 @@ export default function Festa({ info, cofre, ir }) {
         <div className="porco">{emoji(info)}</div>
         <h2>{titulo(info)}</h2>
         <p>
-          Agora tem <b>{comCifrao(info.saldoDepois)}</b> dentro do cofrinho
+          {info.categoria === 'banco' ? 'Ficaram ' : 'Agora tem '}
+          <b>{comCifrao(info.saldoDepois)}</b> dentro do cofrinho
         </p>
+        {info.categoria === 'banco' ? (
+          <p>Você não ficou com menos: o dinheiro só mudou de lugar.</p>
+        ) : null}
         {info.tipo === 'conferencia' && info.diferenca !== 0 && !info.primeiraVez ? (
           <p>
             {info.diferenca > 0 ? 'Apareceram ' : 'Sumiram '}
@@ -69,12 +73,14 @@ export default function Festa({ info, cofre, ir }) {
 }
 
 function emoji(info) {
+  if (info.categoria === 'banco') return '🏦'
   if (info.tipo === 'saida') return '🐷'
   if (info.tipo === 'conferencia') return '🪙'
   return '🐷🎉'
 }
 
 function titulo(info) {
+  if (info.categoria === 'banco') return 'Foi pro banco! Continua seu 🏦'
   if (info.tipo === 'entrada') return 'Anotado! Dinheiro guardado 🎉'
   if (info.tipo === 'saida') return 'Anotado.'
   if (info.primeiraVez) return 'Pronto, agora você sabe!'

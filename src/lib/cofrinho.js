@@ -25,6 +25,7 @@ export const ORIGENS = [
   { id: 'tarefa', nome: 'Tarefa', icone: '🧹' },
   { id: 'troco', nome: 'Troco que sobrou', icone: '💰' },
   { id: 'vendi', nome: 'Vendi algo', icone: '💼' },
+  { id: 'do-banco', nome: 'Voltou do banco', icone: '🏦' },
   { id: 'outro-e', nome: 'Outro', icone: '✨' }
 ]
 
@@ -298,8 +299,14 @@ function calcular(dados) {
 
   const mesAtual = mesDe(new Date().toISOString())
   const doMes = lancamentos.filter((l) => mesDe(l.data) === mesAtual)
-  const entrouNoMes = doMes.filter((l) => l.tipo === 'entrada').reduce((s, l) => s + l.valor, 0)
-  const saiuNoMes = doMes.filter((l) => l.tipo === 'saida').reduce((s, l) => s + l.valor, 0)
+  // Ir e voltar do banco e transferencia, nao entrada nem gasto: fica de fora
+  // do resumo do mes, igual acontece nos graficos da jornada.
+  const entrouNoMes = doMes
+    .filter((l) => l.tipo === 'entrada' && l.categoria !== 'do-banco')
+    .reduce((s, l) => s + l.valor, 0)
+  const saiuNoMes = doMes
+    .filter((l) => l.tipo === 'saida' && l.categoria !== 'banco')
+    .reduce((s, l) => s + l.valor, 0)
 
   const porOrigem = {}
   for (const l of lancamentos) {
@@ -314,6 +321,16 @@ function calcular(dados) {
       fatia: totalEntradas ? Math.round((valor / totalEntradas) * 100) : 0
     }))
     .sort((a, b) => b.valor - a.valor)
+
+  // Dinheiro no banco nao sumiu: ele so mudou de lugar.
+  const foiPraBanco = lancamentos
+    .filter((l) => l.tipo === 'saida' && l.categoria === 'banco')
+    .reduce((s, l) => s + l.valor, 0)
+  const voltouDoBanco = lancamentos
+    .filter((l) => l.tipo === 'entrada' && l.categoria === 'do-banco')
+    .reduce((s, l) => s + l.valor, 0)
+  const noBanco = foiPraBanco - voltouDoBanco
+  const patrimonio = saldo + noBanco
 
   const esperandoAprovacao = marcacoes.filter((m) => m.status === 'pendente')
   const aReceber = marcacoes.filter((m) => m.status === 'aprovada')
@@ -334,9 +351,66 @@ function calcular(dados) {
     aReceber,
     totalAReceber,
     ganhoTarefasMes,
+    noBanco,
+    patrimonio,
+    historico: historicoMensal(lancamentos, 6),
     sequencia: contarSequencia(lancamentos),
     ultimaConferencia: dados.conferencias[0] || null
   }
+}
+
+// Os ultimos `quantos` meses, do mais antigo para o mais novo, com o saldo
+// acumulado no fim de cada um. Meses sem movimento aparecem mesmo assim -
+// uma barra parada tambem conta uma historia.
+function historicoMensal(lancamentos, quantos) {
+  if (lancamentos.length === 0) return []
+
+  const emOrdem = [...lancamentos].sort((a, b) => new Date(a.data) - new Date(b.data))
+  const primeiro = new Date(emOrdem[0].data)
+  const hoje = new Date()
+
+  const meses = []
+  const cursor = new Date(primeiro.getFullYear(), primeiro.getMonth(), 1)
+  while (cursor <= hoje) {
+    meses.push(new Date(cursor))
+    cursor.setMonth(cursor.getMonth() + 1)
+  }
+
+  let cofre = 0
+  let banco = 0
+  const linha = meses.map((d) => {
+    const chave = mesDe(d.toISOString())
+    const doMes = emOrdem.filter((l) => mesDe(l.data) === chave)
+
+    let entrou = 0
+    let saiu = 0
+    for (const l of doMes) {
+      if (l.tipo === 'entrada') {
+        cofre += l.valor
+        if (l.categoria === 'do-banco') banco -= l.valor
+        else entrou += l.valor
+      } else if (l.tipo === 'saida') {
+        cofre -= l.valor
+        if (l.categoria === 'banco') banco += l.valor
+        else saiu += l.valor
+      } else {
+        cofre += l.valor
+      }
+    }
+
+    return {
+      chave,
+      data: d.toISOString(),
+      rotulo: d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', ''),
+      entrou,
+      saiu,
+      cofre,
+      banco,
+      total: cofre + banco
+    }
+  })
+
+  return linha.slice(-quantos)
 }
 
 function contarSequencia(lancamentos) {

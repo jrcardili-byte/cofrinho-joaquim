@@ -44,6 +44,12 @@ export default function Inicio({ cofre, ir }) {
           <em>R$</em> {comCifrao(saldo).replace('R$ ', '')}
         </p>
         <p className="saldo-sub">{resumoDoMes(entrouNoMes, saiuNoMes)}</p>
+        {cofre.noBanco > 0 ? (
+          <p className="saldo-sub">
+            🏦 Mais {comCifrao(cofre.noBanco)} no banco · tudo que é seu:{' '}
+            <b>{comCifrao(cofre.patrimonio)}</b>
+          </p>
+        ) : null}
         {diasDesdeConferencia !== null ? (
           <span className="conf-pill">
             {diasDesdeConferencia > 30 ? '🕒' : '✅'} Conferido{' '}
@@ -81,6 +87,9 @@ export default function Inicio({ cofre, ir }) {
       </button>
       <button className="btn btn-ghost" onClick={() => ir('objetivos')}>
         🎯 Meus objetivos
+      </button>
+      <button className="btn btn-ghost" onClick={() => ir('jornada')}>
+        📈 Minha jornada
       </button>
       <button className="btn btn-ghost" onClick={() => ir('dicas')}>
         💡 Dicas e conquistas

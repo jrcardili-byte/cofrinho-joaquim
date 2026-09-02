@@ -772,3 +772,108 @@ label.rotulo {
 @media (prefers-reduced-motion: reduce) {
   .pin-bolinhas.errou span { animation: none; }
 }
+
+/* ---------- graficos ---------- */
+/* Menta e coral validados para daltonismo (deutan dE 9.7 no claro, 8.0 no
+   escuro). Como o contraste da menta contra o fundo claro fica abaixo de 3:1,
+   toda barra carrega o valor escrito - a cor nunca e a unica informacao. */
+:root {
+  --serie-entrou: #2fc495;
+  --serie-saiu: #ef5b4c;
+  --serie-banco: #1b3a8f;
+  --grafico-eixo: #c9c6da;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --serie-entrou: #17a97c;
+    --serie-saiu: #d6503f;
+    --serie-banco: #4a5fb8;
+    --grafico-eixo: #3a4470;
+  }
+}
+
+.grafico {
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  padding: 12px 8px 8px;
+  margin-top: 8px;
+  overflow-x: auto;
+}
+.grafico svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.eixo {
+  stroke: var(--grafico-eixo);
+  stroke-width: 1.5;
+}
+.marca.entrou {
+  fill: var(--serie-entrou);
+}
+.marca.saiu {
+  fill: var(--serie-saiu);
+}
+.marca.banco {
+  fill: var(--serie-banco);
+}
+.coluna {
+  cursor: pointer;
+}
+.coluna .marca {
+  transition: opacity 0.15s ease;
+}
+.coluna:hover .marca {
+  opacity: 0.82;
+}
+.coluna.escolhida .marca {
+  stroke: var(--ink);
+  stroke-width: 2;
+  paint-order: stroke;
+}
+.rotulo-valor {
+  fill: var(--ink-2);
+  font-family: Fredoka, sans-serif;
+  font-size: 10px;
+  text-anchor: middle;
+  font-variant-numeric: tabular-nums;
+}
+.rotulo-eixo {
+  fill: var(--ink-3);
+  font-family: Nunito, sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  text-anchor: middle;
+  text-transform: capitalize;
+}
+.legenda-grafico {
+  color: var(--ink-3);
+  font-size: 11.5px;
+  margin: 6px 2px 0;
+}
+.chaves {
+  display: flex;
+  gap: 14px;
+  margin-top: 6px;
+}
+.chave {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+.chave i.marca {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  display: inline-block;
+}
+.chave i.entrou {
+  background: var(--serie-entrou);
+}
+.chave i.saiu {
+  background: var(--serie-saiu);
+}

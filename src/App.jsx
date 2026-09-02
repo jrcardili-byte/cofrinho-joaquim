@@ -9,13 +9,17 @@ import Dicas from './telas/Dicas.jsx'
 import Festa from './telas/Festa.jsx'
 import Tarefas from './telas/Tarefas.jsx'
 import Pais from './telas/Pais.jsx'
+import Jornada from './telas/Jornada.jsx'
 
 export default function App() {
   const cofre = useCofrinho()
   const [tela, setTela] = useState('inicio')
   const [festa, setFesta] = useState(null)
+  const [extra, setExtra] = useState(null)
 
-  const ir = (nome) => {
+  // `extra` leva ajustes da tela de destino, como a categoria ja escolhida.
+  const ir = (nome, opcoes = null) => {
+    setExtra(opcoes)
     setTela(nome)
     window.scrollTo(0, 0)
   }
@@ -30,7 +34,15 @@ export default function App() {
   switch (tela) {
     case 'entrada':
     case 'saida':
-      conteudo = <Movimento tipo={tela} cofre={cofre} ir={ir} comemorar={comemorar} />
+      conteudo = (
+        <Movimento
+          tipo={tela}
+          cofre={cofre}
+          ir={ir}
+          comemorar={comemorar}
+          categoriaInicial={extra?.categoria}
+        />
+      )
       break
     case 'contar':
       conteudo = <Contar cofre={cofre} ir={ir} comemorar={comemorar} />
@@ -49,6 +61,9 @@ export default function App() {
       break
     case 'pais':
       conteudo = <Pais cofre={cofre} ir={ir} />
+      break
+    case 'jornada':
+      conteudo = <Jornada cofre={cofre} ir={ir} />
       break
     case 'festa':
       conteudo = <Festa info={festa} cofre={cofre} ir={ir} />

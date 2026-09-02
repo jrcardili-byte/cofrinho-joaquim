@@ -38,6 +38,22 @@ botões se chamam “Coloquei” e “Tirei”, no passado, e não “Depositar�
 > O PIN é uma tranca de confiança, não segurança de verdade: ele fica salvo no próprio aparelho e
 > serve para impedir o clique impulsivo de uma criança, não um adulto determinado.
 
+### Minha jornada e o banco (Etapa 3)
+
+- **Gráfico do patrimônio mês a mês**, com o cofre e o banco empilhados: dá para tocar em cada barra
+  e ver o mês em detalhe.
+- **Gráfico do que entrou e do que saiu**, divergente em torno do zero.
+- **O banco é um lugar, não um gasto.** Levar dinheiro para o banco tira do cofre e soma no banco;
+  o total (“tudo que é seu”) não muda. Um app que mostrasse a criança ficando mais pobre por
+  investir estaria ensinando exatamente o contrário do que se quer.
+- Transferências de e para o banco ficam fora dos totais de “entrou” e “saiu” do mês, porque
+  transferência não é ganho nem gasto.
+
+As cores das séries foram validadas para daltonismo com o script do skill de visualização
+(deutan ΔE 9.7 no tema claro, 8.0 no escuro; o tema escuro usa tons próprios porque os do app
+ficavam fora da faixa de luminosidade). Como o verde tem contraste baixo contra o fundo claro,
+**toda barra carrega o valor escrito** — a cor nunca é a única informação.
+
 Tudo fica salvo no `localStorage` do próprio aparelho. Nada vai para servidor nenhum.
 
 ## Rodando no computador
@@ -84,7 +100,8 @@ public/               manifest, ícones e service worker
 src/lib/dinheiro.js   formatação de valores e datas
 src/lib/cofrinho.js   estado do cofrinho, cálculos e persistência
 src/telas/            Inicio, Movimento, Contar, Objetivos, Extrato, Dicas, Festa,
-                      Tarefas (visao do Joaquim) e Pais (PIN, aprovacoes, ajustes)
+                      Tarefas (visao do Joaquim), Pais (PIN, aprovacoes, ajustes)
+                      e Jornada (graficos e o banco)
 src/estilos.css       o visual inteiro
 ```
 
@@ -96,4 +113,5 @@ que garante que R$ 0,10 + R$ 0,20 dê exatamente R$ 0,30.
 - **Sincronizar dois celulares** — hoje os dados vivem no aparelho onde o app é usado. Para o
   Joaquim aprovar no celular dele e você no seu, é preciso um servidor (Firebase, Supabase ou
   parecido). Ainda não está feito.
-- **Etapa 3** — gráficos da origem do dinheiro ao longo dos meses e a ponte para o banco.
+- **Rendimento real do banco** — hoje a projeção usa uma taxa fixa de 6% ao ano só como ilustração.
+  Dava para o responsável cadastrar a taxa da conta de verdade.
