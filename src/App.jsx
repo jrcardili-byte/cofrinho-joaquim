@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import { useCofrinho } from './lib/cofrinho.js'
+import { nuvemConfigurada } from './lib/nuvem.js'
+import { lerSessao, gravarSessao, ehResponsavel } from './lib/sessao.js'
+import Entrar from './telas/Entrar.jsx'
 import Inicio from './telas/Inicio.jsx'
 import Movimento from './telas/Movimento.jsx'
 import Contar from './telas/Contar.jsx'
@@ -12,7 +15,8 @@ import Pais from './telas/Pais.jsx'
 import Jornada from './telas/Jornada.jsx'
 
 export default function App() {
-  const cofre = useCofrinho()
+  const [sessao, setSessao] = useState(lerSessao)
+  const cofre = useCofrinho(sessao)
   const [tela, setTela] = useState('inicio')
   const [festa, setFesta] = useState(null)
   const [extra, setExtra] = useState(null)
@@ -28,6 +32,21 @@ export default function App() {
   const comemorar = (info) => {
     setFesta(info)
     ir('festa')
+  }
+
+  // Com a nuvem ligada, o aparelho precisa saber em qual cofrinho ele esta.
+  // Sem configuracao, o app segue local como sempre foi.
+  if (nuvemConfigurada && !sessao) {
+    return (
+      <div className="app">
+        <Entrar
+          aoEntrar={(nova) => {
+            gravarSessao(nova)
+            setSessao(nova)
+          }}
+        />
+      </div>
+    )
   }
 
   let conteudo
@@ -60,7 +79,7 @@ export default function App() {
       conteudo = <Tarefas cofre={cofre} ir={ir} comemorar={comemorar} />
       break
     case 'pais':
-      conteudo = <Pais cofre={cofre} ir={ir} />
+      conteudo = <Pais cofre={cofre} ir={ir} sessao={sessao} />
       break
     case 'jornada':
       conteudo = <Jornada cofre={cofre} ir={ir} />
@@ -69,7 +88,7 @@ export default function App() {
       conteudo = <Festa info={festa} cofre={cofre} ir={ir} />
       break
     default:
-      conteudo = <Inicio cofre={cofre} ir={ir} />
+      conteudo = <Inicio cofre={cofre} ir={ir} responsavel={ehResponsavel(sessao)} />
   }
 
   return (

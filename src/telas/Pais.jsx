@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useState } from 'react'
 import { comCifrao, emReais, quandoFoi } from '../lib/dinheiro.js'
-import { ICONES_TAREFA } from '../lib/cofrinho.js'
+import { ICONES_TAREFA, categoria } from '../lib/cofrinho.js'
+import { apagarSessao, ehResponsavel } from '../lib/sessao.js'
+import { formatarCodigo } from '../lib/nuvem.js'
 
-export default function Pais({ cofre, ir }) {
+export default function Pais({ cofre, ir, sessao }) {
   const { dados } = cofre
-  const [liberado, setLiberado] = useState(!dados.pin)
+  // Quem entrou como responsavel neste aparelho ja passou pela porta.
+  const [liberado, setLiberado] = useState(ehResponsavel(sessao) || !dados.pin)
   const liberar = useCallback(() => setLiberado(true), [])
 
   if (!liberado) return <Tranca cofre={cofre} ir={ir} liberar={liberar} />
-  return <Painel cofre={cofre} ir={ir} />
+  return <Painel cofre={cofre} ir={ir} sessao={sessao} />
 }
 
 /* ---------- PIN ---------- */
@@ -73,7 +76,7 @@ function Tranca({ cofre, ir, liberar }) {
 
 /* ---------- painel ---------- */
 
-function Painel({ cofre, ir }) {
+function Painel({ cofre, ir, sessao }) {
   const { dados, esperandoAprovacao, aReceber, totalAReceber, saldo, origens, totalEntradas } = cofre
   const [aba, setAba] = useState('aprovar')
 
@@ -88,6 +91,7 @@ function Painel({ cofre, ir }) {
         {[
           ['aprovar', `Aprovar${esperandoAprovacao.length ? ` (${esperandoAprovacao.length})` : ''}`],
           ['tarefas', 'Tarefas'],
+          ['dinheiro', 'Dinheiro'],
           ['ajustes', 'Ajustes']
         ].map(([id, rotulo]) => (
           <button key={id} className="aba" aria-current={aba === id} onClick={() => setAba(id)}>
@@ -108,7 +112,8 @@ function Painel({ cofre, ir }) {
         />
       ) : null}
       {aba === 'tarefas' ? <GerenciarTarefas cofre={cofre} /> : null}
-      {aba === 'ajustes' ? <Ajustes cofre={cofre} dados={dados} /> : null}
+      {aba === 'dinheiro' ? <Dinheiro cofre={cofre} ir={ir} /> : null}
+      {aba === 'ajustes' ? <Ajustes cofre={cofre} dados={dados} sessao={sessao} ir={ir} /> : null}
     </>
   )
 }
@@ -285,7 +290,79 @@ function GerenciarTarefas({ cofre }) {
   )
 }
 
-function Ajustes({ cofre, dados }) {
+// Onde o responsavel corrige o dinheiro: lancar direto e apagar o que ficou
+// errado. Apagar some com a linha do historico; nao vira um lancamento novo.
+function Dinheiro({ cofre, ir }) {
+  const [confirmando, setConfirmando] = useState(null)
+  const lancamentos = cofre.dados.lancamentos.slice(0, 30)
+
+  return (
+    <>
+      <div className="acoes" style={{ marginTop: 12 }}>
+        <button className="btn btn-in" onClick={() => ir('entrada')}>
+          <b>＋</b>Lançar entrada
+        </button>
+        <button className="btn btn-out" onClick={() => ir('saida')}>
+          <b>－</b>Lançar saída
+        </button>
+      </div>
+      <button className="btn btn-ghost" onClick={() => ir('contar')}>
+        🪙 Conferir o cofre e acertar o saldo
+      </button>
+
+      <p className="titulinho">Corrigir lançamentos</p>
+      {lancamentos.length === 0 ? (
+        <div className="vazio">
+          <div className="porco">📖</div>
+          <p>Nada anotado ainda.</p>
+        </div>
+      ) : (
+        lancamentos.map((l) => {
+          const cat = categoria(l.categoria)
+          const ajuste = l.tipo === 'ajuste'
+          const entrada = l.tipo === 'entrada'
+          return (
+            <div className="linha" key={l.id}>
+              <div className={'ic ' + (ajuste ? 'neutro' : entrada ? 'up' : 'down')}>
+                {ajuste ? '🪙' : cat.icone}
+              </div>
+              <div className="linha-txt">
+                <strong>{ajuste ? 'Conferência' : l.nota || cat.nome}</strong>
+                <small>{quandoFoi(l.data)}</small>
+              </div>
+              <span className={'valor ' + (ajuste ? '' : entrada ? 'up' : 'down')}>
+                {(entrada || (ajuste && l.valor > 0) ? '+' : '−') +
+                  comCifrao(Math.abs(l.valor)).replace('R$ ', '')}
+              </span>
+              {confirmando === l.id ? (
+                <button
+                  className="btn-mini"
+                  style={{ background: 'var(--coral)', color: '#fff' }}
+                  onClick={() => {
+                    cofre.removerLancamento(l.id)
+                    setConfirmando(null)
+                  }}
+                >
+                  apagar mesmo
+                </button>
+              ) : (
+                <button className="btn-mini apagar" onClick={() => setConfirmando(l.id)}>
+                  apagar
+                </button>
+              )}
+            </div>
+          )
+        })
+      )}
+      <p className="legenda-grafico">
+        Apagar um lançamento muda o saldo na hora. Se a intenção é acertar o cofre com o dinheiro
+        real, prefira a conferência — ela deixa registrado o que aconteceu.
+      </p>
+    </>
+  )
+}
+
+function Ajustes({ cofre, dados, sessao, ir }) {
   const [valor, setValor] = useState(dados.mesada.valor ? emReais(dados.mesada.valor) : '')
   const [dia, setDia] = useState(String(dados.mesada.dia))
   const [pin, setPin] = useState('')
@@ -407,6 +484,30 @@ function Ajustes({ cofre, dados }) {
           Salvar nome
         </button>
       </div>
+
+      {sessao ? (
+        <div className="cartao">
+          <div className="cartao-topo">
+            <span>🔑 Código da família</span>
+            <span className="codigo-inline">{formatarCodigo(sessao.codigo)}</span>
+          </div>
+          <small style={{ marginTop: 0 }}>
+            É esse código que liga os dois celulares. Digite ele no aparelho da criança para ela
+            entrar no mesmo cofrinho.
+          </small>
+          <button
+            className="btn btn-ghost"
+            onClick={() => {
+              if (confirm('Sair deste cofrinho neste aparelho?')) {
+                apagarSessao()
+                location.reload()
+              }
+            }}
+          >
+            Sair deste cofrinho
+          </button>
+        </div>
+      ) : null}
 
       {salvo ? <p className="diferenca ok">{salvo} ✅</p> : null}
     </>

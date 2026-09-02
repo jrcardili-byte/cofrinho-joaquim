@@ -1,7 +1,7 @@
 import { comCifrao, comSinal, quandoFoi, diasRestantes } from '../lib/dinheiro.js'
 import { categoria } from '../lib/cofrinho.js'
 
-export default function Inicio({ cofre, ir }) {
+export default function Inicio({ cofre, ir, responsavel = false }) {
   const { dados, saldo, entrouNoMes, saiuNoMes, ultimaConferencia } = cofre
   const primeiraVez = dados.lancamentos.length === 0
   const ultimos = dados.lancamentos.slice(0, 4)
@@ -95,8 +95,9 @@ export default function Inicio({ cofre, ir }) {
         💡 Dicas e conquistas
       </button>
       <button className="btn btn-ghost" onClick={() => ir('pais')}>
-        👨‍👩‍👦 Modo dos responsáveis
+        👨‍👩‍👦 {responsavel ? 'Meu painel' : 'Modo dos responsáveis'}
       </button>
+      <Sincronia estado={cofre.sincronia} />
 
       {meta ? <Meta meta={meta} saldo={saldo} /> : null}
 
@@ -115,6 +116,17 @@ export default function Inicio({ cofre, ir }) {
       <p className="rodape">O app só anota. O dinheiro continua todo no cofrinho. 🐷</p>
     </>
   )
+}
+
+// Uma linha discreta dizendo se o que esta na tela ja chegou no outro celular.
+function Sincronia({ estado }) {
+  if (estado === 'local') return null
+  const texto = {
+    ligando: '⏳ Conectando com o outro celular…',
+    ligado: '🔄 Sincronizado com o outro celular',
+    offline: '📴 Sem internet — anotado aqui, sobe quando voltar'
+  }[estado]
+  return <p className="sincronia">{texto}</p>
 }
 
 function resumoDoMes(entrou, saiu) {

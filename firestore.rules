@@ -1,0 +1,26 @@
+rules_version = '2';
+
+// Regras do Cofrinho.
+//
+// Cada familia tem um documento em cofres/{codigo}. Quem sabe o codigo entra:
+// o codigo E o segredo. Nao ha usuario dono, porque nao ha senha - a ideia e
+// que a crianca nunca precise decorar nada.
+//
+// O que isso significa na pratica: alguem que descobrisse um codigo valido
+// conseguiria ler e escrever naquele cofrinho. Sao 32^6 combinacoes (mais de
+// um bilhao) e o dado e o extrato de um cofrinho de crianca, entao a troca
+// parece justa. Se um dia precisar de mais que isso, o caminho e login de
+// verdade com dono do documento.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /cofres/{codigo} {
+      allow read, write: if request.auth != null
+                         && codigo.matches('^[A-Z0-9]{6}$');
+    }
+    // Nada mais no banco e acessivel pelo app.
+    match /{documento=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -877,3 +877,35 @@ label.rotulo {
 .chave i.saiu {
   background: var(--serie-saiu);
 }
+
+/* ---------- entrada e sessao ---------- */
+.codigo-grande {
+  font-family: Fredoka, sans-serif;
+  font-size: 40px;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.08em;
+  background: var(--paper);
+  border: 2px dashed var(--mint);
+  border-radius: 18px;
+  padding: 16px 8px;
+  margin: 6px 0 0;
+  color: var(--ink);
+  user-select: all;
+}
+.codigo-campo {
+  font-family: Fredoka, sans-serif;
+  font-size: 26px;
+  text-align: center;
+  letter-spacing: 0.1em;
+}
+.codigo-inline {
+  font-family: Fredoka, sans-serif;
+  letter-spacing: 0.06em;
+}
+.sincronia {
+  text-align: center;
+  color: var(--ink-3);
+  font-size: 11.5px;
+  margin: 12px 0 0;
+}

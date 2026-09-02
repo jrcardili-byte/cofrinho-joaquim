@@ -1,7 +1,21 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { mesDe } from './dinheiro.js'
+import { assinarCofre, enviarCampos } from './nuvem.js'
 
 const CHAVE = 'cofrinho.joaquim.v1'
+
+// Campos que vivem no documento do cofrinho e viajam entre os aparelhos.
+const CAMPOS = [
+  'nome',
+  'lancamentos',
+  'metas',
+  'conferencias',
+  'esperando',
+  'tarefas',
+  'marcacoes',
+  'mesada',
+  'pin'
+]
 
 export const CEDULAS = [
   { valor: 20000, rotulo: 'R$ 200', icone: '💵' },
@@ -74,16 +88,74 @@ function carregar() {
 
 const novoId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
 
-export function useCofrinho() {
-  const [dados, setDados] = useState(carregar)
+function somenteCampos(doc) {
+  const saida = {}
+  for (const campo of CAMPOS) if (doc[campo] !== undefined) saida[campo] = doc[campo]
+  return saida
+}
 
+// Compara campo a campo para escrever so o que realmente mudou.
+function camposMudados(anterior, atual) {
+  const mudou = {}
+  for (const campo of CAMPOS) {
+    const antes = anterior ? anterior[campo] : undefined
+    const agora = atual[campo]
+    if (JSON.stringify(antes) !== JSON.stringify(agora)) mudou[campo] = agora ?? null
+  }
+  return mudou
+}
+
+export const ESTADO_INICIAL = INICIAL
+
+export function useCofrinho(sessao = null) {
+  const [dados, setDados] = useState(carregar)
+  const [sincronia, setSincronia] = useState(sessao ? 'ligando' : 'local')
+
+  // Ultima versao que sabemos estar na nuvem, para comparar o que mudou.
+  const naNuvem = useRef(null)
+  // Marca que a mudanca veio de fora: nao deve ser reenviada.
+  const veioDeFora = useRef(false)
+
+  const codigo = sessao?.codigo || null
+
+  // Escuta o cofrinho na nuvem.
+  useEffect(() => {
+    if (!codigo) {
+      setSincronia('local')
+      naNuvem.current = null
+      return undefined
+    }
+    setSincronia('ligando')
+    return assinarCofre(
+      codigo,
+      (doNuvem) => {
+        naNuvem.current = doNuvem
+        veioDeFora.current = true
+        setDados((atual) => ({ ...atual, ...somenteCampos(doNuvem) }))
+        setSincronia('ligado')
+      },
+      () => setSincronia('offline')
+    )
+  }, [codigo])
+
+  // Guarda sempre uma copia local (o app abre offline) e envia o que mudou.
   useEffect(() => {
     try {
       localStorage.setItem(CHAVE, JSON.stringify(dados))
     } catch {
       // Sem espaco no navegador: o app continua funcionando nesta sessao.
     }
-  }, [dados])
+
+    if (!codigo) return
+    if (veioDeFora.current) {
+      veioDeFora.current = false
+      return
+    }
+    const mudou = camposMudados(naNuvem.current, dados)
+    if (Object.keys(mudou).length === 0) return
+    naNuvem.current = { ...(naNuvem.current || {}), ...mudou }
+    enviarCampos(codigo, mudou).catch(() => setSincronia('offline'))
+  }, [dados, codigo])
 
   // Quando chega o dia da mesada, ela entra sozinha na fila do "pra receber".
   useEffect(() => {
@@ -264,10 +336,15 @@ export function useCofrinho() {
   const trocarNome = useCallback((nome) => setDados((d) => ({ ...d, nome })), [])
   const apagarTudo = useCallback(() => setDados(INICIAL), [])
 
+  const removerLancamento = useCallback((id) => {
+    setDados((d) => ({ ...d, lancamentos: d.lancamentos.filter((l) => l.id !== id) }))
+  }, [])
+
   const resumo = useMemo(() => calcular(dados), [dados])
 
   return {
     dados,
+    sincronia,
     ...resumo,
     registrar,
     conferir,
@@ -283,6 +360,7 @@ export function useCofrinho() {
     receber,
     definirPin,
     configurarMesada,
+    removerLancamento,
     trocarNome,
     apagarTudo
   }
