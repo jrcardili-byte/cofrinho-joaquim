@@ -1,0 +1,645 @@
+<title>Uma Mensagem para o Seu Coração</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,650;1,9..144,500&family=Nunito:wght@500;700;800&display=swap">
+<style>
+/* Layout: uma tela por vez (início, sorteio, fim de rodada), o cartão da mensagem no centro; painel do professor como gaveta lateral discreta. Tema único claro, pensado para projetor. */
+:root {
+  color-scheme: light;
+  --fundo: #FDF5F8;
+  --papel: #FFFFFF;
+  --tinta: #3A2E48;
+  --tinta-suave: #6E6380;
+  --linha: #EADFE8;
+
+  --rosa: #F9CFDC;     --rosa-forte: #C2416D;
+  --azul: #CFE6F7;     --azul-forte: #2F6E9F;
+  --menta: #CFEFE0;    --menta-forte: #23795A;
+  --amarelo: #FFF1BF;  --amarelo-forte: #85600E;
+
+  --display: "Fraunces", Georgia, "Times New Roman", serif;
+  --texto: "Nunito", "Segoe UI", system-ui, sans-serif;
+
+  --raio: 28px;
+  --sombra: 0 18px 50px -20px rgba(120, 60, 100, .35);
+}
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  background:
+    radial-gradient(40vmax 40vmax at 8% 12%, var(--rosa) 0%, transparent 60%),
+    radial-gradient(38vmax 38vmax at 95% 10%, var(--azul) 0%, transparent 60%),
+    radial-gradient(40vmax 40vmax at 90% 95%, var(--menta) 0%, transparent 60%),
+    radial-gradient(34vmax 34vmax at 5% 92%, var(--amarelo) 0%, transparent 60%),
+    var(--fundo);
+  background-attachment: fixed;
+  color: var(--tinta);
+  font-family: var(--texto);
+  font-size: 18px;
+  overflow-x: hidden;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--azul-forte); outline-offset: 3px; }
+
+/* enfeites flutuantes */
+.enfeites { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.enfeites span { position: absolute; font-size: 22px; opacity: .55; animation: flutua 9s ease-in-out infinite; }
+@keyframes flutua { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-14px) rotate(8deg); } }
+
+main {
+  position: relative; z-index: 1;
+  min-height: 100%;
+  display: grid; place-items: center;
+  padding-block: 32px 96px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  box-sizing: border-box;
+}
+.tela { width: 100%; max-width: 1100px; display: flex; flex-direction: column; align-items: center; gap: 28px; text-align: center; }
+
+/* ---------- Início ---------- */
+.ilustracao { width: min(260px, 60vw); height: auto; }
+h1 {
+  font-family: var(--display); font-weight: 650;
+  font-size: clamp(2.2rem, 5.6vw, 4.6rem); line-height: 1.05;
+  margin: 0; text-wrap: balance; letter-spacing: -.01em;
+}
+h1 em { font-style: italic; font-weight: 500; color: var(--rosa-forte); }
+.subtitulo { margin: 0; font-size: clamp(1.05rem, 1.8vw, 1.35rem); color: var(--tinta-suave); max-width: 40ch; text-wrap: balance; }
+
+.categorias { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.chip {
+  border: 2px solid transparent; border-radius: 999px;
+  padding: 10px 20px; font-weight: 700; font-size: 1.05rem;
+  background: var(--papel); color: var(--tinta);
+  box-shadow: 0 2px 0 var(--linha);
+  transition: transform .15s ease, border-color .15s ease;
+}
+.chip:hover { transform: translateY(-2px); }
+.chip[aria-pressed="true"] { border-color: var(--tinta); }
+.chip[data-cat="acolhimento"] { background: var(--rosa); }
+.chip[data-cat="qualidades"] { background: var(--azul); }
+.chip[data-cat="sentimentos"] { background: var(--menta); }
+.chip[data-cat="sonhos"] { background: var(--amarelo); }
+.rotulo-cat { font-size: .82rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--tinta-suave); margin: 0; }
+
+.btn-principal {
+  border: 0; border-radius: 999px;
+  background: var(--rosa-forte); color: #fff;
+  font-weight: 800; letter-spacing: .04em;
+  font-size: clamp(1.2rem, 2.4vw, 1.7rem);
+  padding: 22px 46px;
+  box-shadow: 0 10px 0 -2px #9A2F55, var(--sombra);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.btn-principal:hover { transform: translateY(-2px); }
+.btn-principal:active { transform: translateY(6px); box-shadow: 0 4px 0 -2px #9A2F55, var(--sombra); }
+.status-rodada { margin: 0; color: var(--tinta-suave); font-size: 1rem; min-height: 1.4em; }
+
+/* ---------- Sorteio ---------- */
+.topo-sorteio { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.contador {
+  background: var(--papel); border-radius: 999px; padding: 10px 22px;
+  font-weight: 800; font-size: clamp(1rem, 1.7vw, 1.3rem);
+  font-variant-numeric: tabular-nums; box-shadow: 0 2px 0 var(--linha);
+}
+.contador b { color: var(--rosa-forte); }
+.progresso { flex: 1 1 200px; height: 10px; background: var(--papel); border-radius: 999px; overflow: hidden; max-width: 420px; }
+.progresso i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--rosa), var(--rosa-forte)); border-radius: inherit; transition: width .5s ease; }
+
+.palco { width: 100%; perspective: 1400px; }
+.cartao {
+  --tom: var(--rosa); --tom-forte: var(--rosa-forte);
+  position: relative;
+  background: var(--papel);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  padding: clamp(28px, 5vw, 64px) clamp(22px, 6vw, 80px);
+  display: flex; flex-direction: column; align-items: center; gap: clamp(18px, 3vw, 32px);
+  overflow: hidden;
+  min-height: clamp(300px, 46vh, 520px);
+  justify-content: center;
+  box-sizing: border-box;
+}
+.cartao::before {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(120% 70% at 50% 0%, var(--tom) 0%, transparent 70%);
+  opacity: .9; pointer-events: none;
+}
+.cartao > * { position: relative; }
+.cartao[data-cat="qualidades"] { --tom: var(--azul); --tom-forte: var(--azul-forte); }
+.cartao[data-cat="sentimentos"] { --tom: var(--menta); --tom-forte: var(--menta-forte); }
+.cartao[data-cat="sonhos"] { --tom: var(--amarelo); --tom-forte: var(--amarelo-forte); }
+.tag-cat {
+  font-weight: 800; letter-spacing: .14em; text-transform: uppercase; font-size: clamp(.8rem, 1.2vw, 1rem);
+  color: var(--tom-forte); background: var(--papel); padding: 8px 18px; border-radius: 999px;
+  border: 2px solid var(--tom);
+}
+.mensagem {
+  font-family: var(--display); font-weight: 650; margin: 0;
+  font-size: clamp(1.9rem, 4.4vw, 3.9rem); line-height: 1.18;
+  max-width: 22ch; text-wrap: balance;
+}
+.convite {
+  margin: 0; font-size: clamp(1.1rem, 2vw, 1.6rem); color: var(--tinta-suave);
+  max-width: 36ch; text-wrap: balance;
+}
+.convite::before { content: "💬"; margin-right: .4em; }
+.canto { position: absolute; font-size: clamp(22px, 3vw, 34px); opacity: .8; }
+.canto.a { top: 18px; left: 22px; } .canto.b { top: 18px; right: 22px; }
+.canto.c { bottom: 18px; left: 22px; } .canto.d { bottom: 18px; right: 22px; }
+
+.cartao.revelar { animation: revelar .75s cubic-bezier(.2,.8,.25,1.1) both; }
+@keyframes revelar {
+  0% { transform: rotateY(90deg) scale(.92); opacity: 0; }
+  60% { opacity: 1; }
+  100% { transform: rotateY(0) scale(1); opacity: 1; }
+}
+.embaralhando { display: flex; gap: 14px; justify-content: center; align-items: center; min-height: clamp(300px, 46vh, 520px); }
+.embaralhando span { width: 70px; height: 96px; border-radius: 16px; box-shadow: var(--sombra); animation: baralho .5s ease-in-out infinite alternate; }
+.embaralhando span:nth-child(1) { background: var(--rosa); }
+.embaralhando span:nth-child(2) { background: var(--azul); animation-delay: .12s; }
+.embaralhando span:nth-child(3) { background: var(--menta); animation-delay: .24s; }
+.embaralhando span:nth-child(4) { background: var(--amarelo); animation-delay: .36s; }
+@keyframes baralho { from { transform: translateY(0) rotate(-6deg); } to { transform: translateY(-22px) rotate(6deg); } }
+
+.acoes { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
+.btn-sec {
+  border: 2px solid var(--tinta); background: var(--papel); border-radius: 999px;
+  padding: 16px 30px; font-weight: 800; font-size: clamp(1rem, 1.7vw, 1.25rem);
+}
+.btn-sec:hover { background: var(--fundo); }
+.dica { margin: 0; color: var(--tinta-suave); font-size: .95rem; }
+kbd { font-family: var(--texto); font-weight: 800; background: var(--papel); border: 1px solid var(--linha); border-bottom-width: 3px; border-radius: 6px; padding: 1px 7px; }
+
+/* ---------- Fim ---------- */
+.fim-cartao { background: var(--papel); border-radius: var(--raio); box-shadow: var(--sombra); padding: clamp(28px, 5vw, 60px); display: flex; flex-direction: column; gap: 18px; align-items: center; max-width: 720px; }
+.fim-cartao h2 { font-family: var(--display); font-weight: 650; font-size: clamp(1.8rem, 3.6vw, 3rem); margin: 0; text-wrap: balance; }
+.fim-cartao p { margin: 0; color: var(--tinta-suave); font-size: 1.2rem; }
+
+/* corações que sobem na revelação */
+.chuva { position: fixed; inset: 0; pointer-events: none; z-index: 5; overflow: hidden; }
+.chuva span { position: absolute; bottom: -40px; font-size: 26px; animation: sobe 1.8s ease-out forwards; }
+@keyframes sobe { to { transform: translateY(-75vh) rotate(25deg); opacity: 0; } }
+
+/* ---------- Professor ---------- */
+.btn-professor {
+  position: fixed; z-index: 20;
+  right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  border: 1px solid var(--linha); background: rgba(255,255,255,.75); backdrop-filter: blur(6px);
+  border-radius: 999px; padding: 10px 16px; font-size: .9rem; font-weight: 700; color: var(--tinta-suave);
+}
+.btn-professor:hover { color: var(--tinta); }
+.veu { position: fixed; inset: 0; background: rgba(58, 46, 72, .35); z-index: 30; }
+.painel {
+  position: fixed; z-index: 31; top: 0; right: 0; bottom: 0;
+  width: min(560px, 100%); background: var(--papel); box-shadow: -20px 0 60px -20px rgba(58,46,72,.4);
+  display: flex; flex-direction: column;
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  box-sizing: border-box;
+}
+.painel header { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; border-bottom: 1px solid var(--linha); gap: 12px; }
+.painel h2 { margin: 0; font-family: var(--display); font-size: 1.5rem; font-weight: 650; }
+.painel .corpo { overflow-y: auto; padding: 18px 22px 40px; display: flex; flex-direction: column; gap: 26px; font-size: 16px; text-align: left; }
+.painel section { display: flex; flex-direction: column; gap: 12px; }
+.painel h3 { margin: 0; font-size: .8rem; letter-spacing: .14em; text-transform: uppercase; color: var(--tinta-suave); font-weight: 800; }
+.fechar { border: 0; background: var(--fundo); border-radius: 999px; padding: 8px 14px; font-weight: 800; }
+.linha-botoes { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn-p { border: 1px solid var(--linha); background: var(--fundo); border-radius: 12px; padding: 10px 14px; font-weight: 700; }
+.btn-p:hover { border-color: var(--tinta-suave); }
+.btn-p.perigo { color: var(--rosa-forte); }
+.toggle { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 12px; background: var(--fundo); }
+.toggle input { width: 20px; height: 20px; accent-color: var(--rosa-forte); }
+.toggle .bolinha { width: 14px; height: 14px; border-radius: 50%; flex: none; }
+.toggle small { margin-left: auto; color: var(--tinta-suave); font-variant-numeric: tabular-nums; }
+.aviso { background: var(--amarelo); border-radius: 12px; padding: 12px 14px; font-size: .95rem; line-height: 1.45; }
+.lista { display: flex; flex-direction: column; gap: 12px; }
+.item { border: 1px solid var(--linha); border-radius: 14px; padding: 12px; display: grid; gap: 8px; border-left-width: 6px; }
+.item[data-cat="acolhimento"] { border-left-color: var(--rosa); }
+.item[data-cat="qualidades"] { border-left-color: var(--azul); }
+.item[data-cat="sentimentos"] { border-left-color: var(--menta); }
+.item[data-cat="sonhos"] { border-left-color: var(--amarelo); }
+.item label { font-size: .78rem; font-weight: 800; color: var(--tinta-suave); text-transform: uppercase; letter-spacing: .08em; }
+.item textarea, .item input, .item select, .novo select, .filtro select {
+  width: 100%; box-sizing: border-box; font: inherit; color: var(--tinta);
+  border: 1px solid var(--linha); border-radius: 10px; padding: 8px 10px; background: var(--papel);
+}
+.item textarea { resize: vertical; min-height: 52px; font-weight: 700; }
+.item .rodape { display: flex; gap: 8px; align-items: center; }
+.item .rodape select { flex: 1; }
+.filtro { display: flex; gap: 10px; align-items: center; }
+.filtro select { width: auto; flex: 1; }
+
+@media (max-width: 520px) {
+  .btn-principal { padding: 18px 28px; }
+  .embaralhando span { width: 52px; height: 72px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition: none !important; }
+}
+</style>
+
+<div class="enfeites" aria-hidden="true">
+  <span style="top:9%;left:12%">♡</span>
+  <span style="top:18%;right:14%;animation-delay:-2s">✦</span>
+  <span style="top:62%;left:6%;animation-delay:-4s">✧</span>
+  <span style="bottom:12%;right:9%;animation-delay:-1s">♡</span>
+  <span style="top:40%;right:4%;animation-delay:-6s">⋆</span>
+  <span style="bottom:6%;left:30%;animation-delay:-3s">✦</span>
+</div>
+
+<main>
+  <!-- INÍCIO -->
+  <section class="tela" id="telaInicio">
+    <svg class="ilustracao" viewBox="0 0 260 200" role="img" aria-label="Envelope aberto com um coração saindo">
+      <circle cx="40" cy="40" r="5" fill="#F3B6C8"/>
+      <circle cx="222" cy="52" r="4" fill="#9CC9EA"/>
+      <path d="M210 18 l4 9 9 4 -9 4 -4 9 -4 -9 -9 -4 9 -4z" fill="#F5D46B"/>
+      <path d="M34 92 l3 6 6 3 -6 3 -3 6 -3 -6 -6 -3 6 -3z" fill="#9EDBC1"/>
+      <rect x="50" y="88" width="160" height="100" rx="16" fill="#FFFFFF" stroke="#E9D3DF" stroke-width="2"/>
+      <path d="M50 104 L130 150 L210 104" fill="none" stroke="#E9D3DF" stroke-width="2"/>
+      <rect x="72" y="40" width="116" height="96" rx="12" fill="#FFF8DC" stroke="#F0E2A8" stroke-width="2"/>
+      <path d="M130 118 C 100 96, 96 70, 114 64 C 124 61, 130 70, 130 76 C 130 70, 136 61, 146 64 C 164 70, 160 96, 130 118 Z" fill="#E86E96"/>
+      <path d="M118 74 c 4 -4 10 -3 12 2" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+      <path d="M50 188 L112 140 M210 188 L148 140" stroke="#E9D3DF" stroke-width="2"/>
+      <path d="M50 120 v52 a16 16 0 0 0 16 16 h128 a16 16 0 0 0 16 -16 v-52 L130 160 Z" fill="#FCE3EC"/>
+    </svg>
+    <h1>Uma Mensagem para o <em>Seu Coração</em></h1>
+    <p class="subtitulo">Respire fundo, aperte o botão e descubra a mensagem que chegou para você hoje.</p>
+
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center">
+      <p class="rotulo-cat">Sortear de</p>
+      <div class="categorias" id="chips" role="group" aria-label="Escolher categoria"></div>
+    </div>
+
+    <button class="btn-principal" id="btnSortear">SORTEAR MINHA MENSAGEM 💗</button>
+    <p class="status-rodada" id="statusRodada"></p>
+  </section>
+
+  <!-- SORTEIO -->
+  <section class="tela" id="telaSorteio" hidden>
+    <div class="topo-sorteio">
+      <div class="contador" id="contador" aria-live="polite">Mensagem <b>1</b> de 12</div>
+      <div class="progresso" aria-hidden="true"><i id="barra"></i></div>
+    </div>
+    <div class="palco" id="palco"></div>
+    <div class="acoes">
+      <button class="btn-principal" id="btnProxima">Sortear próxima mensagem 💗</button>
+      <button class="btn-sec" id="btnVoltar">Voltar ao início</button>
+    </div>
+    <p class="dica">Dica: a tecla <kbd>Espaço</kbd> também sorteia a próxima.</p>
+  </section>
+
+  <!-- FIM DE RODADA -->
+  <section class="tela" id="telaFim" hidden>
+    <div class="fim-cartao">
+      <div style="font-size:48px" aria-hidden="true">🌷</div>
+      <h2>Todas as mensagens foram sorteadas!</h2>
+      <p id="textoFim">As 12 mensagens desta rodada já apareceram.</p>
+      <div class="acoes">
+        <button class="btn-principal" id="btnNovaRodada">Começar nova rodada ✨</button>
+        <button class="btn-sec" id="btnVoltarFim">Voltar ao início</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="chuva" id="chuva" aria-hidden="true"></div>
+
+<button class="btn-professor" id="btnProfessor">⚙︎ Professora</button>
+
+<div class="veu" id="veu" hidden></div>
+<aside class="painel" id="painel" hidden aria-label="Painel da professora">
+  <header>
+    <h2>Painel da professora</h2>
+    <button class="fechar" id="btnFecharPainel">Fechar ✕</button>
+  </header>
+  <div class="corpo">
+    <p class="aviso"><b>Protótipo:</b> as mensagens abaixo são exemplos. As 40 mensagens reais entram na próxima versão. Edições feitas aqui ficam guardadas só neste navegador.</p>
+
+    <section>
+      <h3>Aula</h3>
+      <div class="linha-botoes">
+        <button class="btn-p" id="btnReiniciar">↺ Reiniciar rodada</button>
+        <button class="btn-p" id="btnTelaCheia">⛶ Tela cheia</button>
+      </div>
+    </section>
+
+    <section>
+      <h3>Categorias ativas</h3>
+      <div id="toggles" style="display:grid;gap:8px"></div>
+    </section>
+
+    <section>
+      <h3>Adicionar mensagem</h3>
+      <div class="item novo" data-cat="acolhimento" id="novoItem">
+        <label for="novoTexto">Mensagem</label>
+        <textarea id="novoTexto" rows="2" placeholder="Ex.: Você faz diferença na vida de alguém."></textarea>
+        <label for="novoConvite">Convite à reflexão</label>
+        <input id="novoConvite" placeholder="Ex.: Para quem você gostaria de dizer isso?">
+        <div class="rodape">
+          <select id="novoCat" aria-label="Categoria da nova mensagem"></select>
+          <button class="btn-p" id="btnAdicionar">+ Adicionar</button>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h3>Todas as mensagens (<span id="totalMsgs">0</span>)</h3>
+      <div class="filtro">
+        <label for="filtroLista" style="font-weight:700">Mostrar</label>
+        <select id="filtroLista"></select>
+      </div>
+      <div class="lista" id="lista"></div>
+      <div class="linha-botoes">
+        <button class="btn-p perigo" id="btnRestaurar">Restaurar mensagens originais</button>
+      </div>
+    </section>
+  </div>
+</aside>
+
+<script>
+const CATS = [
+  { id: 'acolhimento', nome: 'Acolhimento', cor: 'var(--rosa)' },
+  { id: 'qualidades', nome: 'Qualidades', cor: 'var(--azul)' },
+  { id: 'sentimentos', nome: 'Sentimentos', cor: 'var(--menta)' },
+  { id: 'sonhos', nome: 'Sonhos e recomeços', cor: 'var(--amarelo)' },
+];
+const nomeCat = id => (CATS.find(c => c.id === id) || {}).nome || id;
+
+// Mensagens de EXEMPLO do protótipo — serão substituídas pelas 40 reais.
+const EXEMPLOS = [
+  ['acolhimento', 'Você não precisa ser perfeito para ser especial.', 'O que essa frase significa para você?'],
+  ['acolhimento', 'Aqui é um lugar onde você pode ser quem você é.', 'O que faz você se sentir à vontade em um lugar?'],
+  ['acolhimento', 'Sua presença deixa esta turma mais completa.', 'Como você gosta de ser recebido quando chega?'],
+  ['qualidades', 'Uma qualidade que você admira em si mesmo é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['qualidades', 'Alguém já se sentiu melhor por causa de você.', 'Lembra de uma vez em que você ajudou alguém?'],
+  ['qualidades', 'Você é bom em algo que talvez ainda nem tenha percebido.', 'O que as pessoas costumam elogiar em você?'],
+  ['sentimentos', 'Tudo bem não estar bem o tempo todo.', 'O que te ajuda nos dias mais difíceis?'],
+  ['sentimentos', 'Seus sentimentos são importantes e merecem ser ouvidos.', 'Com quem você gosta de conversar quando algo te incomoda?'],
+  ['sentimentos', 'Um dia bom pode começar com um pequeno gesto.', 'Qual gesto simples deixa seu dia melhor?'],
+  ['sonhos', 'Cada dia é uma nova chance de recomeçar.', 'O que você gostaria de recomeçar ou tentar de novo?'],
+  ['sonhos', 'Seus sonhos cabem no seu futuro.', 'Qual sonho você guarda no coração?'],
+  ['sonhos', 'Errar faz parte do caminho de quem aprende.', 'Conte algo que você aprendeu depois de errar.'],
+].map(([cat, texto, convite], i) => ({ id: 'ex' + (i + 1), cat, texto, convite }));
+
+const CHAVE = 'mensagem-coracao-v1';
+let dados = carregar();
+let filtro = 'todas';
+let decks = {};          // uma rodada (fila embaralhada) por filtro
+let atual = null;
+
+function carregar() {
+  try {
+    const salvo = JSON.parse(localStorage.getItem(CHAVE));
+    if (salvo && Array.isArray(salvo.mensagens)) return salvo;
+  } catch (e) {}
+  return padrao();
+}
+function padrao() {
+  return { mensagens: EXEMPLOS.map(m => ({ ...m })), ativas: Object.fromEntries(CATS.map(c => [c.id, true])) };
+}
+function salvar() {
+  try { localStorage.setItem(CHAVE, JSON.stringify(dados)); } catch (e) {}
+}
+
+function embaralhar(lista) {
+  const a = lista.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function idsDisponiveis(f) {
+  return dados.mensagens.filter(m => dados.ativas[m.cat] && (f === 'todas' || m.cat === f)).map(m => m.id);
+}
+function novaRodada(f) {
+  const ids = embaralhar(idsDisponiveis(f));
+  decks[f] = { fila: ids, total: ids.length, sorteadas: 0 };
+  return decks[f];
+}
+function zerarRodadas() { decks = {}; atual = null; }
+
+const $ = id => document.getElementById(id);
+const telas = { inicio: $('telaInicio'), sorteio: $('telaSorteio'), fim: $('telaFim') };
+function mostrarTela(nome) {
+  Object.entries(telas).forEach(([k, el]) => el.hidden = k !== nome);
+  window.scrollTo(0, 0);
+  if (nome === 'inicio') atualizarInicio();
+}
+
+/* ---------- Início ---------- */
+function atualizarInicio() {
+  if (filtro !== 'todas' && !dados.ativas[filtro]) filtro = 'todas';
+  const chips = $('chips');
+  chips.innerHTML = '';
+  const opcoes = [{ id: 'todas', nome: 'Todas' }, ...CATS.filter(c => dados.ativas[c.id])];
+  opcoes.forEach(c => {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.dataset.cat = c.id;
+    b.textContent = c.nome;
+    b.setAttribute('aria-pressed', String(filtro === c.id));
+    b.onclick = () => { filtro = c.id; atualizarInicio(); };
+    chips.appendChild(b);
+  });
+  const d = decks[filtro];
+  $('statusRodada').textContent = d && d.sorteadas > 0 && d.fila.length > 0
+    ? `Rodada em andamento: ${d.sorteadas} de ${d.total} já sorteadas`
+    : '';
+}
+
+/* ---------- Sorteio ---------- */
+let animando = false;
+function sortear() {
+  if (animando) return;
+  let d = decks[filtro];
+  if (!d) d = novaRodada(filtro);
+  if (d.total === 0) {
+    mostrarTela('inicio');
+    $('statusRodada').textContent = 'Não há mensagens ativas nesta categoria. Ajuste no painel da professora.';
+    return;
+  }
+  if (d.fila.length === 0) { mostrarFim(d); return; }
+  const id = d.fila.shift();
+  d.sorteadas++;
+  atual = dados.mensagens.find(m => m.id === id);
+  if (telas.sorteio.hidden) mostrarTela('sorteio');
+  $('contador').innerHTML = `Mensagem <b>${d.sorteadas}</b> de ${d.total}`;
+  $('barra').style.width = (d.sorteadas / d.total * 100) + '%';
+  revelar(atual);
+}
+
+function revelar(m) {
+  const palco = $('palco');
+  const reduzido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  animando = true;
+  palco.innerHTML = '<div class="embaralhando" aria-hidden="true"><span></span><span></span><span></span><span></span></div>';
+  setTimeout(() => {
+    palco.innerHTML = '';
+    const c = document.createElement('article');
+    c.className = 'cartao' + (reduzido ? '' : ' revelar');
+    c.dataset.cat = m.cat;
+    c.innerHTML = `
+      <span class="canto a" aria-hidden="true">♡</span><span class="canto b" aria-hidden="true">✦</span>
+      <span class="canto c" aria-hidden="true">✧</span><span class="canto d" aria-hidden="true">♡</span>
+      <span class="tag-cat"></span>
+      <p class="mensagem"></p>
+      <p class="convite"></p>`;
+    c.querySelector('.tag-cat').textContent = nomeCat(m.cat);
+    c.querySelector('.mensagem').textContent = m.texto;
+    c.querySelector('.convite').textContent = m.convite || 'O que essa mensagem desperta em você?';
+    palco.appendChild(c);
+    if (!reduzido) chuvaDeCoracoes();
+    animando = false;
+  }, reduzido ? 0 : 900);
+}
+
+function chuvaDeCoracoes() {
+  const chuva = $('chuva');
+  const simbolos = ['💗', '♡', '✦', '💛', '💙', '💚'];
+  for (let i = 0; i < 14; i++) {
+    const s = document.createElement('span');
+    s.textContent = simbolos[i % simbolos.length];
+    s.style.left = (5 + Math.random() * 90) + '%';
+    s.style.animationDelay = (Math.random() * .5) + 's';
+    s.style.fontSize = (18 + Math.random() * 18) + 'px';
+    chuva.appendChild(s);
+    setTimeout(() => s.remove(), 2600);
+  }
+}
+
+function mostrarFim(d) {
+  $('textoFim').textContent = `As ${d.total} mensagens ${filtro === 'todas' ? 'desta rodada' : 'de “' + nomeCat(filtro) + '”'} já apareceram.`;
+  mostrarTela('fim');
+}
+
+$('btnSortear').onclick = sortear;
+$('btnProxima').onclick = sortear;
+$('btnVoltar').onclick = () => mostrarTela('inicio');
+$('btnVoltarFim').onclick = () => mostrarTela('inicio');
+$('btnNovaRodada').onclick = () => { novaRodada(filtro); sortear(); };
+
+document.addEventListener('keydown', e => {
+  if (!$('painel').hidden) { if (e.key === 'Escape') fecharPainel(); return; }
+  // botão focado já responde sozinho a Espaço/Enter
+  if (/INPUT|TEXTAREA|SELECT|BUTTON/.test(document.activeElement.tagName) && e.key !== 'ArrowRight') return;
+  if (!telas.sorteio.hidden && (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'Enter')) {
+    e.preventDefault(); sortear();
+  }
+});
+
+/* ---------- Painel da professora ---------- */
+function abrirPainel() { $('veu').hidden = false; $('painel').hidden = false; renderPainel(); $('btnFecharPainel').focus(); }
+function fecharPainel() { $('veu').hidden = true; $('painel').hidden = true; if (!telas.inicio.hidden) atualizarInicio(); }
+$('btnProfessor').onclick = abrirPainel;
+$('btnFecharPainel').onclick = fecharPainel;
+$('veu').onclick = fecharPainel;
+
+$('btnReiniciar').onclick = () => {
+  zerarRodadas();
+  $('btnReiniciar').textContent = '✓ Rodada reiniciada';
+  setTimeout(() => $('btnReiniciar').textContent = '↺ Reiniciar rodada', 1800);
+  fecharPainel();
+  mostrarTela('inicio');
+};
+$('btnTelaCheia').onclick = () => {
+  const doc = document;
+  try {
+    if (doc.fullscreenElement) doc.exitFullscreen();
+    else doc.documentElement.requestFullscreen().catch(() => {});
+  } catch (e) {}
+};
+
+function opcoesCategoria(select, valor, comTodas) {
+  select.innerHTML = (comTodas ? '<option value="todas">Todas as categorias</option>' : '') +
+    CATS.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+  select.value = valor;
+}
+
+function renderPainel() {
+  // categorias
+  const t = $('toggles');
+  t.innerHTML = '';
+  CATS.forEach(c => {
+    const n = dados.mensagens.filter(m => m.cat === c.id).length;
+    const l = document.createElement('label');
+    l.className = 'toggle';
+    l.innerHTML = `<input type="checkbox" id="ativa-${c.id}"><span class="bolinha" style="background:${c.cor}"></span><span></span><small>${n} mensagens</small>`;
+    l.querySelector('span:nth-of-type(2)').textContent = c.nome;
+    const cb = l.querySelector('input');
+    cb.checked = !!dados.ativas[c.id];
+    cb.onchange = () => { dados.ativas[c.id] = cb.checked; salvar(); zerarRodadas(); };
+    t.appendChild(l);
+  });
+  opcoesCategoria($('novoCat'), $('novoCat').value || 'acolhimento');
+  if (!$('filtroLista').options.length) opcoesCategoria($('filtroLista'), 'todas', true);
+  renderLista();
+}
+
+function renderLista() {
+  const f = $('filtroLista').value || 'todas';
+  const lista = $('lista');
+  $('totalMsgs').textContent = dados.mensagens.length;
+  lista.innerHTML = '';
+  dados.mensagens.filter(m => f === 'todas' || m.cat === f).forEach(m => {
+    const it = document.createElement('div');
+    it.className = 'item';
+    it.dataset.cat = m.cat;
+    it.innerHTML = `
+      <label for="t-${m.id}">Mensagem</label>
+      <textarea id="t-${m.id}" rows="2"></textarea>
+      <label for="c-${m.id}">Convite à reflexão</label>
+      <input id="c-${m.id}">
+      <div class="rodape">
+        <select id="s-${m.id}" aria-label="Categoria"></select>
+        <button class="btn-p perigo">Excluir</button>
+      </div>`;
+    const [ta, inp, sel, del] = [it.querySelector('textarea'), it.querySelector('input'), it.querySelector('select'), it.querySelector('button')];
+    ta.value = m.texto; inp.value = m.convite;
+    opcoesCategoria(sel, m.cat);
+    ta.oninput = () => { m.texto = ta.value; salvar(); };
+    inp.oninput = () => { m.convite = inp.value; salvar(); };
+    sel.onchange = () => { m.cat = sel.value; it.dataset.cat = m.cat; salvar(); zerarRodadas(); };
+    del.onclick = () => {
+      if (del.dataset.armado) {
+        dados.mensagens = dados.mensagens.filter(x => x.id !== m.id);
+        salvar(); zerarRodadas(); renderPainel();
+      } else {
+        del.dataset.armado = '1'; del.textContent = 'Confirmar exclusão?';
+        setTimeout(() => { delete del.dataset.armado; del.textContent = 'Excluir'; }, 3000);
+      }
+    };
+    lista.appendChild(it);
+  });
+}
+$('filtroLista').onchange = renderLista;
+$('novoCat').onchange = () => $('novoItem').dataset.cat = $('novoCat').value;
+
+$('btnAdicionar').onclick = () => {
+  const texto = $('novoTexto').value.trim();
+  if (!texto) { $('novoTexto').focus(); $('novoTexto').placeholder = 'Escreva a mensagem antes de adicionar.'; return; }
+  dados.mensagens.push({ id: 'm' + Date.now(), cat: $('novoCat').value, texto, convite: $('novoConvite').value.trim() });
+  $('novoTexto').value = ''; $('novoConvite').value = '';
+  salvar(); zerarRodadas(); renderPainel();
+  $('btnAdicionar').textContent = '✓ Adicionada';
+  setTimeout(() => $('btnAdicionar').textContent = '+ Adicionar', 1500);
+};
+
+$('btnRestaurar').onclick = () => {
+  const b = $('btnRestaurar');
+  if (b.dataset.armado) {
+    dados = padrao(); salvar(); zerarRodadas(); renderPainel();
+    delete b.dataset.armado; b.textContent = '✓ Mensagens restauradas';
+    setTimeout(() => b.textContent = 'Restaurar mensagens originais', 1800);
+  } else {
+    b.dataset.armado = '1'; b.textContent = 'Tem certeza? Clique de novo para apagar as edições';
+    setTimeout(() => { if (b.dataset.armado) { delete b.dataset.armado; b.textContent = 'Restaurar mensagens originais'; } }, 3500);
+  }
+};
+
+mostrarTela('inicio');
+</script>
