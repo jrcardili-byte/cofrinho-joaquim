@@ -240,6 +240,8 @@ kbd { font-family: var(--texto); font-weight: 800; background: var(--papel); bor
   .btn-principal { padding: 18px 28px; }
   .embaralhando span { width: 52px; height: 72px; }
 }
+/* celular e tablet: sem teclado, a dica da tecla Espaço não faz sentido */
+@media (hover: none) and (pointer: coarse) { .dica { display: none; } }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition: none !important; }
 }
@@ -280,7 +282,7 @@ kbd { font-family: var(--texto); font-weight: 800; background: var(--papel); bor
       <div class="categorias" id="chips" role="group" aria-label="Escolher categoria"></div>
     </div>
 
-    <button class="btn-principal" id="btnSortear">SORTEAR MINHA MENSAGEM 💗</button>
+    <button class="btn-principal" id="btnSortear">SORTEAR MINHA&nbsp;MENSAGEM&nbsp;💗</button>
     <p class="status-rodada" id="statusRodada"></p>
   </section>
 
@@ -292,7 +294,7 @@ kbd { font-family: var(--texto); font-weight: 800; background: var(--papel); bor
     </div>
     <div class="palco" id="palco"></div>
     <div class="acoes">
-      <button class="btn-principal" id="btnProxima">Sortear próxima mensagem 💗</button>
+      <button class="btn-principal" id="btnProxima">Sortear próxima mensagem&nbsp;💗</button>
       <button class="btn-sec" id="btnVoltar">Voltar ao início</button>
     </div>
     <p class="dica">Dica: a tecla <kbd>Espaço</kbd> também sorteia a próxima.</p>
