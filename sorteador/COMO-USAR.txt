@@ -1,0 +1,28 @@
+UMA MENSAGEM PARA O SEU CORAÇÃO — como usar
+================================================
+
+ABRIR O APLICATIVO
+1. Salve o arquivo "Uma-Mensagem-para-o-Seu-Coracao.html" no computador
+   (por exemplo, na Área de Trabalho ou num pendrive).
+2. Dê dois cliques nele. Ele abre no navegador (Chrome, Edge ou Firefox).
+3. Não precisa de internet, cadastro nem instalação.
+
+NA SALA DE AULA
+- Escolha a categoria (ou "Todas") e clique em "SORTEAR MINHA MENSAGEM".
+- Para sortear a próxima: botão "Sortear próxima mensagem" ou a tecla ESPAÇO.
+- O contador mostra "Mensagem X de 40". Nenhuma mensagem se repete na rodada.
+- Quando as mensagens acabam, aparece o botão "Começar nova rodada".
+- Para projetar em tela inteira: botão "Professora" (canto inferior direito)
+  > "Tela cheia". Para sair, aperte ESC. A tecla F11 também funciona.
+
+PAINEL DA PROFESSORA (botão "Professora", no canto inferior direito)
+- Ver, editar, adicionar e excluir mensagens e convites.
+- Ligar ou desligar categorias.
+- Reiniciar a rodada.
+- "Restaurar mensagens originais" volta para as 40 mensagens iniciais.
+
+ATENÇÃO
+- As edições feitas no painel ficam salvas só naquele computador e naquele
+  navegador. Se usar outro computador (por exemplo, o da escola), ele abre
+  com as 40 mensagens originais.
+- Nenhuma resposta dos alunos é registrada.
