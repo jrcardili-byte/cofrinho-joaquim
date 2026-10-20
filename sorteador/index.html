@@ -281,7 +281,7 @@ kbd { font-family: var(--texto); font-weight: 800; background: var(--papel); bor
   <!-- SORTEIO -->
   <section class="tela" id="telaSorteio" hidden>
     <div class="topo-sorteio">
-      <div class="contador" id="contador" aria-live="polite">Mensagem <b>1</b> de 12</div>
+      <div class="contador" id="contador" aria-live="polite">Mensagem <b>1</b> de 40</div>
       <div class="progresso" aria-hidden="true"><i id="barra"></i></div>
     </div>
     <div class="palco" id="palco"></div>
@@ -297,7 +297,7 @@ kbd { font-family: var(--texto); font-weight: 800; background: var(--papel); bor
     <div class="fim-cartao">
       <div style="font-size:48px" aria-hidden="true">🌷</div>
       <h2>Todas as mensagens foram sorteadas!</h2>
-      <p id="textoFim">As 12 mensagens desta rodada já apareceram.</p>
+      <p id="textoFim">As 40 mensagens desta rodada já apareceram.</p>
       <div class="acoes">
         <button class="btn-principal" id="btnNovaRodada">Começar nova rodada ✨</button>
         <button class="btn-sec" id="btnVoltarFim">Voltar ao início</button>
@@ -317,7 +317,7 @@ kbd { font-family: var(--texto); font-weight: 800; background: var(--papel); bor
     <button class="fechar" id="btnFecharPainel">Fechar ✕</button>
   </header>
   <div class="corpo">
-    <p class="aviso"><b>Protótipo:</b> as mensagens abaixo são exemplos. As 40 mensagens reais entram na próxima versão. Edições feitas aqui ficam guardadas só neste navegador.</p>
+    <p class="aviso">Edições feitas aqui ficam guardadas só neste navegador e neste computador. “Restaurar mensagens originais” volta para as 40 mensagens iniciais.</p>
 
     <section>
       <h3>Aula</h3>
@@ -369,23 +369,51 @@ const CATS = [
 ];
 const nomeCat = id => (CATS.find(c => c.id === id) || {}).nome || id;
 
-// Mensagens de EXEMPLO do protótipo — serão substituídas pelas 40 reais.
-const EXEMPLOS = [
+// As 40 mensagens originais. Convites: frases afirmativas pedem o significado; frases para completar pedem a resposta.
+const ORIGINAIS = [
+  ['acolhimento', 'Você é importante, mesmo nos dias em que não se sente assim.', 'O que essa frase significa para você?'],
   ['acolhimento', 'Você não precisa ser perfeito para ser especial.', 'O que essa frase significa para você?'],
-  ['acolhimento', 'Aqui é um lugar onde você pode ser quem você é.', 'O que faz você se sentir à vontade em um lugar?'],
-  ['acolhimento', 'Sua presença deixa esta turma mais completa.', 'Como você gosta de ser recebido quando chega?'],
-  ['qualidades', 'Uma qualidade que você admira em si mesmo é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
-  ['qualidades', 'Alguém já se sentiu melhor por causa de você.', 'Lembra de uma vez em que você ajudou alguém?'],
-  ['qualidades', 'Você é bom em algo que talvez ainda nem tenha percebido.', 'O que as pessoas costumam elogiar em você?'],
-  ['sentimentos', 'Tudo bem não estar bem o tempo todo.', 'O que te ajuda nos dias mais difíceis?'],
-  ['sentimentos', 'Seus sentimentos são importantes e merecem ser ouvidos.', 'Com quem você gosta de conversar quando algo te incomoda?'],
-  ['sentimentos', 'Um dia bom pode começar com um pequeno gesto.', 'Qual gesto simples deixa seu dia melhor?'],
-  ['sonhos', 'Cada dia é uma nova chance de recomeçar.', 'O que você gostaria de recomeçar ou tentar de novo?'],
-  ['sonhos', 'Seus sonhos cabem no seu futuro.', 'Qual sonho você guarda no coração?'],
-  ['sonhos', 'Errar faz parte do caminho de quem aprende.', 'Conte algo que você aprendeu depois de errar.'],
-].map(([cat, texto, convite], i) => ({ id: 'ex' + (i + 1), cat, texto, convite }));
+  ['acolhimento', 'Respeite seu tempo. Cada pessoa tem seu próprio ritmo.', 'O que essa frase significa para você?'],
+  ['acolhimento', 'Você merece ser tratado com carinho e respeito.', 'O que essa frase significa para você?'],
+  ['acolhimento', 'Errar não diminui o seu valor. Faz parte de aprender.', 'O que essa frase significa para você?'],
+  ['acolhimento', 'Você não precisa enfrentar todas as dificuldades sozinho.', 'O que essa frase significa para você?'],
+  ['acolhimento', 'Que você nunca se esqueça de que sua presença importa.', 'O que essa frase significa para você?'],
+  ['acolhimento', 'Tudo bem não estar bem todos os dias. Você também pode recomeçar.', 'O que essa frase significa para você?'],
+  ['acolhimento', 'Você merece ter pessoas que acreditem em você.', 'O que essa frase significa para você?'],
+  ['acolhimento', 'Nunca tenha vergonha de pedir ajuda quando precisar.', 'O que essa frase significa para você?'],
+  ['qualidades', 'Uma qualidade que admiro em mim é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['qualidades', 'Uma coisa que faço bem e nem sempre percebo é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['qualidades', 'Algo que me faz sentir orgulho de mim é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['qualidades', 'Uma pequena conquista que tive recentemente foi…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['qualidades', 'Uma coisa que gostaria que as pessoas percebessem em mim é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['qualidades', 'Uma característica minha que torna o mundo melhor é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['qualidades', 'Algo novo que aprendi e me deixou feliz foi…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['qualidades', 'Uma dificuldade que consegui superar foi…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['qualidades', 'Uma coisa que gosto em meu jeito de ser é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['qualidades', 'Se eu pudesse me dar um elogio hoje, seria…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['sentimentos', 'Uma coisa simples que sempre melhora meu dia é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['sentimentos', 'Quando estou desanimado, algo que pode me ajudar é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['sentimentos', 'Um lugar onde me sinto bem e tranquilo é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['sentimentos', 'Uma atitude de alguém que me faz sentir acolhido é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['sentimentos', 'Quando preciso de ajuda, gostaria que as pessoas…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['sentimentos', 'Uma coisa que me faz sorrir mesmo em um dia difícil é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['sentimentos', 'Uma mensagem que eu gostaria de ouvir hoje é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['sentimentos', 'Algo que gostaria de aprender a fazer sem medo de errar é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['sentimentos', 'Uma forma de demonstrar carinho por alguém é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['sentimentos', 'Uma coisa que gostaria que existisse mais na nossa sala é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['sonhos', 'Um sonho que gostaria de realizar é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['sonhos', 'Algo que desejo aprender neste ano é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['sonhos', 'Se pudesse dar um conselho para mim mesmo, diria…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['sonhos', 'Uma coisa que quero ter coragem de tentar é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['sonhos', 'Daqui a alguns anos, espero estar…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['sonhos', 'Uma atitude que posso mudar para cuidar melhor de mim é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['sonhos', 'Uma meta pequena que posso começar a cumprir nesta semana é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['sonhos', 'Quando algo parece difícil, quero me lembrar de que…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['sonhos', 'Uma pessoa que me inspira a ser melhor é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+  ['sonhos', 'A mensagem que eu deixaria para alguém que está desanimado é…', 'Pense com carinho e compartilhe sua resposta, se desejar.'],
+].map(([cat, texto, convite], i) => ({ id: 'm' + (i + 1), cat, texto, convite }));
 
-const CHAVE = 'mensagem-coracao-v1';
+const CHAVE = 'mensagem-coracao-v2';
 let dados = carregar();
 let filtro = 'todas';
 let decks = {};          // uma rodada (fila embaralhada) por filtro
@@ -399,7 +427,7 @@ function carregar() {
   return padrao();
 }
 function padrao() {
-  return { mensagens: EXEMPLOS.map(m => ({ ...m })), ativas: Object.fromEntries(CATS.map(c => [c.id, true])) };
+  return { mensagens: ORIGINAIS.map(m => ({ ...m })), ativas: Object.fromEntries(CATS.map(c => [c.id, true])) };
 }
 function salvar() {
   try { localStorage.setItem(CHAVE, JSON.stringify(dados)); } catch (e) {}
